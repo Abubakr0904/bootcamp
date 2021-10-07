@@ -89,6 +89,7 @@ namespace bootcamp
             // lab6Instance.Problem22();
             // lab6Instance.Problem23();
             lab6Instance.Problem24();
+            
         }
     }
 }
