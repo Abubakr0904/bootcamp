@@ -61,11 +61,34 @@ namespace bootcamp
             // lab5Instance.Problem16();
             // lab5Instance.Problem17();
             // lab5Instance.Problem18();
-            lab5Instance.Problem19();
+            // lab5Instance.Problem19();
 
             //LAB6
             var lab6Instance = new Lab6();
-            lab6Instance.Problem1();
+            // lab6Instance.Problem1();
+            // lab6Instance.Problem2();
+            // lab6Instance.Problem3();
+            // lab6Instance.Problem4();
+            // lab6Instance.Problem5();
+            // lab6Instance.Problem6();
+            // lab6Instance.Problem7();
+            // lab6Instance.Problem8();
+            // lab6Instance.Problem9();
+            // lab6Instance.Problem10();
+            // lab6Instance.Problem11();
+            // lab6Instance.Problem12();
+            // lab6Instance.Problem13();
+            // lab6Instance.Problem14();
+            // lab6Instance.Problem15();
+            // lab6Instance.Problem16();
+            // lab6Instance.Problem17();
+            // lab6Instance.Problem18();
+            // lab6Instance.Problem19();
+            // lab6Instance.Problem20();
+            // lab6Instance.Problem21();
+            // lab6Instance.Problem22();
+            // lab6Instance.Problem23();
+            lab6Instance.Problem24();
         }
     }
 }

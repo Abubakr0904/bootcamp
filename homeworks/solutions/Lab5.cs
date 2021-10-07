@@ -380,7 +380,7 @@ namespace bootcamp.solutions
         public void Problem20()
         {
             var c = Console.Read();
-            if(char.IsLetter(c))
+            if(char.IsLetter((char)c))
             {
                 System.Console.WriteLine('1');
             }
