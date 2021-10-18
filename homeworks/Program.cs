@@ -91,11 +91,6 @@ namespace bootcamp
             // lab6Instance.Problem24();
             
             var list = new ListHW();
-            list.Problem1();
-            list.Problem2();
-            list.Problem3();
-            list.Problem4();
-            list.Problem5();
         }
     }
 }
