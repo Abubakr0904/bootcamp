@@ -38,7 +38,7 @@ namespace lesson10
                     };
 
                     var json = JsonSerializer.Serialize(result.Data.Data.Timings, settings)
-                    .Replace("\"", "").Replace("{", "").Replace("}", "")
+                    .Replace("\"", "").Replace("{\n", "").Replace("\n}", "")
                     .Replace(",", "");
 
                     Console.WriteLine($"{json}");
