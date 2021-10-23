@@ -1,11 +1,11 @@
-﻿using System;
+﻿using System.Runtime.Serialization;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using lesson10.Dto.PrayerTime;
 using System.Collections.Generic;
-using lesson10.Dto.User;
 using lesson10.Services;
 using System.Linq;
+using lesson10.Dto.PrayerTime;
 
 namespace lesson10
 {
@@ -13,7 +13,6 @@ namespace lesson10
     {
 
 
-        public static string usersApi = "https://randomuser.me/api/";
         static async Task Main(string[] args)
         {
             var davlat = "";
@@ -25,11 +24,11 @@ namespace lesson10
                 Console.WriteLine($"{davlat}ning qaysi shahridagi namoz vaqtlari kerak?");
                 shahar = Console.ReadLine();
 
-                string prayerTimeApi = $"http://api.aladhan.com/v1/timingsByCity?city={shahar}&country={davlat}&method=8";
+                string prayerTimeApi = $"http://api.aladhan.com/v1/hijriCalendar?latitude=40&longitude=69&method=2&month=01&year=2021";
             
                 var httpService = new HttpClientService();
                 var result = await httpService.GetObjectAsync<PrayerTime>(prayerTimeApi);
-
+                
                 if(result.IsSuccess)
                 {
                     var settings = new JsonSerializerOptions()
@@ -37,7 +36,7 @@ namespace lesson10
                         WriteIndented = true
                     };
 
-                    var json = JsonSerializer.Serialize(result.Data.Data.Timings, settings)
+                    var json = JsonSerializer.Serialize(result.Data, settings)
                     .Replace("\"", "").Replace("{\n", "").Replace("\n}", "")
                     .Replace(",", "");
 
