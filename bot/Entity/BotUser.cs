@@ -12,6 +12,8 @@ namespace bot.Entity
         public double Longitude { get; set; }
         public double Latitude { get; set; }
         public string Address { get; set; }
+        public bool NotificationSetting { get; set; } = true;
+        public string DailyPrayerTime { get; set; } = null;
 
         [Obsolete("Used only for Entity binding.")]
         public BotUser(){ }

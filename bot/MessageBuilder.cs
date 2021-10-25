@@ -1,15 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Telegram.Bot.Types.ReplyMarkups;
-
 namespace bot
 {
     public class MessageBuilder
     {
-        public string GreetingMessage()
-        {
-            return "I am a bot to send you correct daily prayer times according to your shared location. I notify you about each prayer time";
-        }
         public static ReplyKeyboardMarkup Menu()
             => new ReplyKeyboardMarkup
             {
@@ -56,37 +51,39 @@ namespace bot
             ResizeKeyboard = true
         };
 
-        public static ReplyKeyboardMarkup NotificationOnOff()
-        => new ReplyKeyboardMarkup()
-        {
-            Keyboard = new List<List<KeyboardButton>>()
-                        {
-                            new List<KeyboardButton>()
-                            {
-                                new KeyboardButton(){ Text = "On", RequestLocation = true },
-                                new KeyboardButton(){ Text = "Off" }
-                            },
-                        },
-            ResizeKeyboard = true
-        };
+        // public static ReplyKeyboardMarkup NotificationOnOff()
+        // => new ReplyKeyboardMarkup()
+        // {
+        //     Keyboard = new List<List<KeyboardButton>>()
+        //                 {
+        //                     new List<KeyboardButton>()
+        //                     {
+        //                         new KeyboardButton(){ Text = "On", RequestLocation = true },
+        //                         new KeyboardButton(){ Text = "Off" }
+        //                     },
+        //                 },
+        //     ResizeKeyboard = true
+        // };
         
 
-        public static string DailyPrayerTimes()
+        public static string DailyPrayerTimes(double latitude, double longitude)
         {
-            return "prayer time";
+            Console.WriteLine($"daily prayer timesga Keldi");
+            
+            return ApiHelper.MessageMakerAsync(latitude, longitude).Result;
         }
 
-        public static ReplyKeyboardMarkup NotShare()
-        => new ReplyKeyboardMarkup()
-        {
-            Keyboard = new List<List<KeyboardButton>>()
-                        {
-                            new List<KeyboardButton>()
-                            {
-                                new KeyboardButton(){ Text = "Restart" }
-                            }
-                        },
-            ResizeKeyboard = true
-        };
+        // public static ReplyKeyboardMarkup NotShare()
+        // => new ReplyKeyboardMarkup()
+        // {
+        //     Keyboard = new List<List<KeyboardButton>>()
+        //                 {
+        //                     new List<KeyboardButton>()
+        //                     {
+        //                         new KeyboardButton(){ Text = "Restart" }
+        //                     }
+        //                 },
+        //     ResizeKeyboard = true
+        // };
     }
 }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
+using bot.Services;
 // using bot.Services;
 using bot.Entity;
 
@@ -23,7 +24,7 @@ namespace bot
         {
             services.AddSingleton<TelegramBotClient>(b => new TelegramBotClient("2052009924:AAFupB_U7LO4dXAJjCLoLvqOrCHvWV1dOBs"));
             services.AddHostedService<Bot>();
-            // services.AddTransient<IStorageService, InternalStorageService>();
+            services.AddTransient<IStorageService, InternalStorageService>();
             services.AddTransient<Handlers>();
             // services.AddTransient<BotUser>();
             // services.AddTransient<IStorageService, DbStorageService>();
