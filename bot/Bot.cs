@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
+using bot.HttpClients;
 using Telegram.Bot.Extensions.Polling;
+using System.Text.Json;
 
 namespace bot
 {

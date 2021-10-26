@@ -1,7 +1,9 @@
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using bot.Entity;
+using bot.HttpClients;
 using bot.Services;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -17,11 +19,13 @@ namespace bot
         private readonly IStorageService _storage;
         private readonly double _latitude;
         private readonly double _longitude;
+        private readonly IPrayerTimeService _prayerTimeClient;
 
-        public Handlers(ILogger<Handlers> logger, IStorageService storage)
+        public Handlers(ILogger<Handlers> logger, IStorageService storage, IPrayerTimeService prayerTimeClient)
         {
             _logger = logger;
             _storage = storage;
+            _prayerTimeClient = prayerTimeClient;
         }
 
         public Task HandleErrorAsync(ITelegramBotClient client, Exception exception, CancellationToken ctoken)
@@ -162,13 +166,25 @@ namespace bot
                             messageId: message.MessageId);
                         break;
                     case "Today's Prayer Times":
+                        var prayerTime = _prayerTimeClient.GetPrayerTimeAsync(
+                            _storage.GetUserAsync(message.Chat.Id).Result.Latitude,
+                            _storage.GetUserAsync(message.Chat.Id).Result.Latitude);
+                            var json = prayerTime.Result.prayerTime;
+
+                        _logger.LogInformation(JsonSerializer.Serialize(prayerTime.Result.prayerTime));
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text: MessageBuilder.DailyPrayerTimes(
-                                _storage.GetUserAsync(message.Chat.Id).Result.Latitude, 
-                                _storage.GetUserAsync(message.Chat.Id).Result.Longitude
-                                ),
+                            text: $@"*Prayer Times*: {DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}
+*Fajr*:               {json.Fajr}
+*Sunrise*:        {json.Sunrise}
+*Dhuhr*:           {json.Dhuhr}
+*Asr*:                {json.Asr}
+*Maghrib*:       {json.Maghrib}
+*Isha*:              {json.Isha}
+
+*Calculation Method*: {json.CalculationMethod}
+                            ",
                             replyMarkup: MessageBuilder.Menu());
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,

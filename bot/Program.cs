@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using bot.Services;
+using bot.HttpClients;
+// using Microsoft.Extensions.Http;
 // using bot.Services;
 using bot.Entity;
 
@@ -22,10 +24,15 @@ namespace bot
 
         private static void Configure(HostBuilderContext context, IServiceCollection services)
         {
-            services.AddSingleton<TelegramBotClient>(b => new TelegramBotClient("2052009924:AAFupB_U7LO4dXAJjCLoLvqOrCHvWV1dOBs"));
+            services.AddSingleton<TelegramBotClient>(b => new TelegramBotClient("2010387651:AAHfS2mLjrEByC-fLVKMFGQfjZduSGWUQUg"));
             services.AddHostedService<Bot>();
             services.AddTransient<IStorageService, InternalStorageService>();
             services.AddTransient<Handlers>();
+            services.AddHttpClient<IPrayerTimeService, AladhanClient>(
+                client => 
+                {
+                    client.BaseAddress = new Uri("http://api.aladhan.com/v1");
+                });
             // services.AddTransient<BotUser>();
             // services.AddTransient<IStorageService, DbStorageService>();
         }

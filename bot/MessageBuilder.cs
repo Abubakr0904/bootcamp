@@ -67,10 +67,8 @@ namespace bot
         
 
         public static string DailyPrayerTimes(double latitude, double longitude)
-        {
-            Console.WriteLine($"daily prayer timesga Keldi");
-            
-            return ApiHelper.MessageMakerAsync(latitude, longitude).Result;
+        {            
+            return "prayer times";
         }
 
         // public static ReplyKeyboardMarkup NotShare()
