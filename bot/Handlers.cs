@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using System.Text.Json;
 using System.Threading;
@@ -10,6 +11,7 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using bot.Extensions;
 
 namespace bot
 {
@@ -17,15 +19,14 @@ namespace bot
     {
         private readonly ILogger<Handlers> _logger;
         private readonly IStorageService _storage;
+        private readonly ICacheService _cache;
         private readonly double _latitude;
         private readonly double _longitude;
-        private readonly IPrayerTimeService _prayerTimeClient;
-
-        public Handlers(ILogger<Handlers> logger, IStorageService storage, IPrayerTimeService prayerTimeClient)
+        public Handlers(ILogger<Handlers> logger, IStorageService storage, ICacheService cache)
         {
             _logger = logger;
             _storage = storage;
-            _prayerTimeClient = prayerTimeClient;
+            _cache = cache;
         }
 
         public Task HandleErrorAsync(ITelegramBotClient client, Exception exception, CancellationToken ctoken)
@@ -91,26 +92,45 @@ namespace bot
 
         private async Task BotOnMessageReceived(ITelegramBotClient client, Message message)
         {
-            if(message.Location != null)
+            BotUser user;
+            string language;
+            if(await _storage.ExistsAsync(message.Chat.Id))
             {
-                var user = new BotUser(
+                user = _storage.GetUserAsync(message.Chat.Id).Result;
+                language = _storage.GetUserAsync(message.Chat.Id).Result.Language;
+            }
+            if(message.Location != null && message.Type == MessageType.Location)
+            {
+                    user = new BotUser(
                     chatId: message.Chat.Id,
                     username: message.From.Username,
                     fullname: $"{message.From.FirstName} {message.From.LastName}",
                     longitude: message.Location.Longitude,
                     latitude: message.Location.Latitude,
                     address: string.Empty);
-                
+                    language: _storage.GetUserAsync(message.Chat.Id).Result.Language;
+                    );
                 var result = await _storage.UpdateUserAsync(user);
+                
                 if(result.IsSuccess)
                 {
                     _logger.LogInformation($"User's location has been updated successfully : {message.Chat.Id}");
                 }
+                else
+                {
+                    _logger.LogCritical($"Error occured with location update : {message.Chat.Id}");
+                }
                 await client.SendTextMessageAsync(
                     chatId: message.Chat.Id,
                     parseMode: ParseMode.Markdown,
-                    text: "Your location has been updated successfully",
-                    replyMarkup: MessageBuilder.Menu());
+                    text: user.Language switch
+                    {
+                        "En" => "Your location has been updated successfully",
+                        "Ru" => "Ваше местоположение было успешно обновлено",
+                        "Uz" => "Joylashuvingiz muvaffaqqiyatli yangilandi",
+                        _    => "Error, please restart the bot"
+                    },
+                    replyMarkup: MessageBuilder.Menu(language));
                 await client.DeleteMessageAsync(
                     chatId: message.Chat.Id,
                     messageId: message.MessageId);
@@ -120,13 +140,12 @@ namespace bot
             }
             else
             {
-
                 switch(message.Text)
                 {
                     case "/start": 
                         if(!await _storage.ExistsAsync(message.Chat.Id))
                         {
-                            var user = new BotUser(
+                                var user = new BotUser(
                                 chatId: message.Chat.Id,
                                 username: message.From.Username,
                                 fullname: $"{message.From.FirstName} {message.From.LastName}",
@@ -145,47 +164,81 @@ namespace bot
                         {
                             _logger.LogInformation($"User exists");
                         }
-
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text: "In order I provide the proper prayer times for you, you should share your current location",
-                            replyMarkup: MessageBuilder.LocationRequestButton());
+                            text: "Tilni tanlang\nChoose language\nВыберите язык",
+                            replyMarkup: MessageBuilder.ChooseLanguage());
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
+                    case "En":
+                        user =_storage.GetUserAsync(message.Chat.Id).Result;
+                        user.Language = "En";
+                        await _storage.UpdateUserAsync(user);
+                        await client.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            parseMode: ParseMode.Markdown,
+                            text: "In order I provide the proper prayer times for you, you should share your current location",
+                            replyMarkup: MessageBuilder.LocationRequestButton("Share", "Don't share"));
+                        await client.DeleteMessageAsync(
+                            chatId: message.Chat.Id,
+                            messageId: message.MessageId);
+                        break;
+                    case "Ru":
+                        user.Language = "Ru";
+                        await _storage.UpdateUserAsync(user);
+                        await client.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            parseMode: ParseMode.Markdown,
+                            text: "Чтобы я указал вам правильное время молитвы, вы должны сообщить свое текущее местоположение",
+                            replyMarkup: MessageBuilder.LocationRequestButton(language));
+                        await client.DeleteMessageAsync(
+                            chatId: message.Chat.Id,
+                            messageId: message.MessageId);
+                        break;
+                    case "Uz":
+                        user =_storage.GetUserAsync(message.Chat.Id).Result;
+                        user.Language = "Uz";
+                        await _storage.UpdateUserAsync(user);
+                        await client.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            parseMode: ParseMode.Markdown,
+                            text: "Namoz vaqtlari to'g'ri ko'rsatishi uchun joriy joylashuvingizni yuboring",
+                            replyMarkup: MessageBuilder.LocationRequestButton("Uz"));
+                        await client.DeleteMessageAsync(
+                            chatId: message.Chat.Id,
+                            messageId: message.MessageId);
+                        break;
+
+                        
                     case "Don't share":
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
                             text: "When you need the prayer times, you can share your location",
-                            replyMarkup: MessageBuilder.LocationRequestButton());
+                            replyMarkup: MessageBuilder.LocationRequestButton(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
                     case "Today's Prayer Times":
-                        var prayerTime = _prayerTimeClient.GetPrayerTimeAsync(
+                        var prayerTime = _cache.GetOrUpdatePrayerTimeAsync(
+                            message.Chat.Id,
                             _storage.GetUserAsync(message.Chat.Id).Result.Latitude,
-                            _storage.GetUserAsync(message.Chat.Id).Result.Latitude);
+                            _storage.GetUserAsync(message.Chat.Id).Result.Longitude);
                             var json = prayerTime.Result.prayerTime;
 
                         _logger.LogInformation(JsonSerializer.Serialize(prayerTime.Result.prayerTime));
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text: $@"*Prayer Times*: {DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}
-*Fajr*:               {json.Fajr}
-*Sunrise*:        {json.Sunrise}
-*Dhuhr*:           {json.Dhuhr}
-*Asr*:                {json.Asr}
-*Maghrib*:       {json.Maghrib}
-*Isha*:              {json.Isha}
-
-*Calculation Method*: {json.CalculationMethod}
-                            ",
-                            replyMarkup: MessageBuilder.Menu());
+                            text: json.TimeToString(language),
+                            replyMarkup: MessageBuilder.Menu(language switch
+                            {
+                                
+                            }));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
@@ -205,7 +258,7 @@ namespace bot
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
                             text: "Settings",
-                            replyMarkup: MessageBuilder.LocationRequestButton());
+                            replyMarkup: MessageBuilder.LocationRequestButton(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
@@ -220,7 +273,7 @@ namespace bot
                             ).Result.status
                                 ? "Notification is now on" 
                                 : "Notification is now off",
-                            replyMarkup: MessageBuilder.Menu());
+                            replyMarkup: MessageBuilder.Menu(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
@@ -230,7 +283,7 @@ namespace bot
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
                             text: "Menu",
-                            replyMarkup: MessageBuilder.Menu());
+                            replyMarkup: MessageBuilder.Menu(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
