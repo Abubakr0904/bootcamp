@@ -25,7 +25,7 @@ namespace bot.Extensions
 
         public static string TimeToString(this bot.Models.PrayerTime json, string language)
         {
-            if(language == "En")
+            if(language == "🇬🇧 En")
                 return $@"*Prayer Times*: {DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}
 *Fajr*:               {json.Fajr}
 *Sunrise*:        {json.Sunrise}
@@ -36,7 +36,7 @@ namespace bot.Extensions
 
 *Source*: {json.Source}
 *Method*: {json.CalculationMethod}";
-            if(language == "Ru")
+            if(language == "🇷🇺 Ru")
                 return $@"*Время молитвы*: {DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}
 *Фаджр*:          {json.Fajr}
 *Восход*:          {json.Sunrise}
@@ -47,7 +47,7 @@ namespace bot.Extensions
 
 *Источник*: {json.Source}
 *Метод*: Духовное управление мусульман России";
-            if(language == "Uz")
+            if(language == "🇺🇿 Uz")
                 return $@"*Namoz vaqtlari*: {DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}
 *Tong*:               {json.Fajr}
 *Quyosh*:          {json.Sunrise}

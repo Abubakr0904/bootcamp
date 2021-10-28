@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using bot.Entity;
-using bot.HttpClients;
 using bot.Services;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -67,27 +65,27 @@ namespace bot
                         
         private async Task BotOnMessageEdited(ITelegramBotClient client, Message editedMessage)
         {
-            // throw new NotImplementedException();
+            _logger.LogInformation($"Message edited: {editedMessage}");
         }
 
         private async Task UnknownUpdateHandlerAsync(ITelegramBotClient client, Update update)
         {
-            // throw new NotImplementedException();
+            _logger.LogInformation($"Unknown update: {update}");
         }
 
         private async Task BotOnChosenInlineResultReceived(ITelegramBotClient client, ChosenInlineResult chosenInlineResult)
         {
-            // throw new NotImplementedException();
+            _logger.LogInformation($"Inline result received: {chosenInlineResult}");
         }
 
         private async Task BotOnInlineQueryReceived(ITelegramBotClient client, InlineQuery inlineQuery)
         {
-            // throw new NotImplementedException();
+            _logger.LogInformation($"Inline button pushed: {inlineQuery}");
         }
 
         private async Task BotOnCallbackQueryReceived(ITelegramBotClient client, CallbackQuery callbackQuery)
         {
-            // throw new NotImplementedException();
+            _logger.LogInformation($"Callback query received: {callbackQuery}");
         }
 
         private async Task BotOnMessageReceived(ITelegramBotClient client, Message message)
@@ -128,9 +126,9 @@ namespace bot
                     parseMode: ParseMode.Markdown,
                     text: _storage.GetUserAsync(message.Chat.Id).Result.Language switch
                     {
-                        "En" => "Your location has been updated successfully",
-                        "Ru" => "Ваше местоположение было успешно обновлено",
-                        "Uz" => "Joylashuvingiz muvaffaqqiyatli yangilandi",
+                        "🇬🇧 En" => "Your location has been updated successfully",
+                        "🇷🇺 Ru" => "Ваше местоположение было успешно обновлено",
+                        "🇺🇿 Uz" => "Joylashuvingiz muvaffaqqiyatli yangilandi",
                         _    => "Error, please restart the bot"
                     },
                     replyMarkup: MessageBuilder.Menu(language));
@@ -173,16 +171,16 @@ namespace bot
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text: "Tilni tanlang\nChoose language\nВыберите язык",
+                            text: "🇺🇿 Tilni tanlang\n🇬🇧 Choose language\n🇷🇺 Выберите язык",
                             replyMarkup: MessageBuilder.ChooseLanguage());
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
                     } 
-                    case "En":
-                    case "Ru":
-                    case "Uz":
+                    case "🇬🇧 En":
+                    case "🇷🇺 Ru":
+                    case "🇺🇿 Uz":
                     {
                         var initUser = await _storage.GetUserAsync(message.Chat.Id);
                         initUser.Language = message.Text;
@@ -193,31 +191,34 @@ namespace bot
                             parseMode: ParseMode.Markdown,
                             text: initUser.Language switch
                                     {
-                                        "En" => "In order I provide the proper prayer times for you, you should share your current location",
-                                        "Ru" => "Для представления точного времени молитвы, введите текущее местоположение",
-                                        "Uz" => "Namoz vaqtlari to'g'ri ko'rsatishi uchun joriy joylashuvingizni yuboring",
+                                        "🇬🇧 En" => "In order I provide the proper prayer times for you, you should share your current location",
+                                        "🇷🇺 Ru" => "Для представления точного времени молитвы, введите текущее местоположение",
+                                        "🇺🇿 Uz" => "Namoz vaqtlari to'g'ri ko'rsatishi uchun joriy joylashuvingizni yuboring",
                                         _    => "Problem with language. Try again"
                                     },
                             replyMarkup: MessageBuilder.LocationRequestButton(initUser.Language)
                             );
+                        await client.DeleteMessageAsync(
+                            chatId: message.Chat.Id,
+                            messageId: message.MessageId);
                         break;
                     }
-                    case "English":
-                    case "O'zbekcha":
-                    case "Русский":
+                    case "🇬🇧 English":
+                    case "🇺🇿 O'zbekcha":
+                    case "🇷🇺 Русский":
                     {
                         var langUser =  _storage.GetUserAsync(message.Chat.Id).Result;
-                        if(message.Text == "English")
+                        if(message.Text == "🇬🇧 English")
                         {
-                            langUser.Language = "En";
+                            langUser.Language = "🇬🇧 En";
                         }
-                        else if(message.Text == "O'zbekcha")
+                        else if(message.Text == "🇺🇿 O'zbekcha")
                         {
-                            langUser.Language = "Uz";
+                            langUser.Language = "🇺🇿 Uz";
                         }
-                        else if(message.Text == "Русский")
+                        else if(message.Text == "🇷🇺 Русский")
                         {
-                            langUser.Language = "Ru";
+                            langUser.Language = "🇷🇺 Ru";
                         }
                         else
                         {
@@ -230,9 +231,9 @@ namespace bot
                             parseMode: ParseMode.Markdown,
                             text: langUser.Language switch
                                 {
-                                    "En" => "Language updated successfully",
-                                    "Ru" => "Язык успешно обновлен",
-                                    "Uz" => "Til muvaffaqiyatli yangilandi",
+                                    "🇬🇧 En" => "Language updated successfully",
+                                    "🇷🇺 Ru" => "Язык успешно обновлен",
+                                    "🇺🇿 Uz" => "Til muvaffaqiyatli yangilandi",
                                     _    => "Problem with language. Try again"
                                 },
                             replyMarkup: MessageBuilder.Menu(langUser.Language)
@@ -252,9 +253,9 @@ namespace bot
                             parseMode: ParseMode.Markdown,
                             text: shareUser.Language switch
                             {
-                                "En" => "When you need the prayer times, you can share your location",
-                                "Uz" => "Namoz vaqtlarini bilish uchun joylashuvingizni kiritishingiz kerak",
-                                "Ru" => "Для представлнния времени молитвы, необходимо ввести местоположение",
+                                "🇬🇧 En" => "When you need the prayer times, you can share your location",
+                                "🇺🇿 Uz" => "Namoz vaqtlarini bilish uchun joylashuvingizni kiritishingiz kerak",
+                                "🇷🇺 Ru" => "Для представлнния времени молитвы, необходимо ввести местоположение",
                                 _    => "Problem with language. Try again"
                             },
                             replyMarkup: MessageBuilder.LocationRequestButton(language));
@@ -295,9 +296,9 @@ namespace bot
                             parseMode: ParseMode.Markdown,
                             text: language switch
                             {
-                                "En" => "Settings",
-                                "Ru" => "Настройки",
-                                "Uz" => "Sozlamalar",
+                                "🇬🇧 En" => "Settings",
+                                "🇷🇺 Ru" => "Настройки",
+                                "🇺🇿 Uz" => "Sozlamalar",
                                 _    => "*Use only buttons*"
                             },
                             replyMarkup: MessageBuilder.Settings(language));
@@ -315,9 +316,9 @@ namespace bot
                             parseMode: ParseMode.Markdown,
                             text: language switch
                             {
-                                "En" => "Reset Location",
-                                "Ru" => "Изменить геолокация",
-                                "Uz" => "Joylashuvni o'zgartirish",
+                                "🇬🇧 En" => "Reset Location",
+                                "🇷🇺 Ru" => "Изменить геолокация",
+                                "🇺🇿 Uz" => "Joylashuvni o'zgartirish",
                                 _    => "*En/Ru/Uz*"
                             },
                             replyMarkup: MessageBuilder.ResetLocationButton(language));
@@ -327,7 +328,7 @@ namespace bot
                         break;
                     }
                     
-                    case "Notification on/off":
+                    case "Notification On/Off":
                     case "Включить/Отключить уведомления":
                     case "Eslatmani yoqish/o'chirish":
                     {
@@ -354,9 +355,9 @@ namespace bot
                             parseMode: ParseMode.Markdown,
                             text: language switch
                             {
-                                "En" => "Menu",
-                                "Ru" => "Меню",
-                                "Uz" => "Menyu",
+                                "🇬🇧 En" => "Menu",
+                                "🇷🇺 Ru" => "Меню",
+                                "🇺🇿 Uz" => "Menyu",
                                 _    => "*Use only buttons*"
                             },
                             replyMarkup: MessageBuilder.Menu(language));
@@ -374,12 +375,12 @@ namespace bot
                             parseMode: ParseMode.Markdown,
                             text: language switch
                             {
-                                "En" => "Choose language",
-                                "Ru" => "Выберите язык",
-                                "Uz" => "Tilni tanlang",
+                                "🇬🇧 En" => "Choose language",
+                                "🇷🇺 Ru" => "Выберите язык",
+                                "🇺🇿 Uz" => "Tilni tanlang",
                                 _    => "*Use only buttons*"
                             },
-                            replyMarkup: MessageBuilder.ChooseNextLanguage());
+                            replyMarkup: MessageBuilder.ChoosenextLanguage());
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
@@ -391,9 +392,9 @@ namespace bot
                             parseMode: ParseMode.Markdown,
                             text: language switch
                             {
-                                "En" => "Invalid command!\nPlease, restart the bot",
-                                "Ru" => "Неравильная команда!\nПожалуйста, перезапустите бота",
-                                "Uz" => "Noto'g'ri buyruq!\nIltimos, botni qaytadan yurgizing",
+                                "🇬🇧 En" => "Invalid command!\nPlease, restart the bot",
+                                "🇷🇺 Ru" => "Неравильная команда!\nПожалуйста, перезапустите бота",
+                                "🇺🇿 Uz" => "Noto'g'ri buyruq!\nIltimos, botni qaytadan yurgizing",
                                 _    => "*Error in default*"
                             });
                         await client.DeleteMessageAsync(
@@ -406,7 +407,7 @@ namespace bot
 
         private string _notificationMessageMaker(bool status, string language)
         {
-            if(language == "Uz")
+            if(language == "🇺🇿 Uz")
             {
                 if(status)
                 {
@@ -417,7 +418,7 @@ namespace bot
                     return "Eslatma o'chirildi";
                 }
             }
-            else if(language == "Ru")
+            else if(language == "🇷🇺 Ru")
             {
                 if(status)
                 {
@@ -428,15 +429,15 @@ namespace bot
                     return "Уведомление выключено";
                 }
             }
-            else if(language == "Ru")
+            else if(language == "🇬🇧 En")
             {
                 if(status)
                 {
-                    return "Уведомление включено";
+                    return "Notification On";
                 }
                 else
                 {
-                    return "Уведомление выключено";
+                    return "Notification Off";
                 }
             }
             return "Error, please use only buttons";

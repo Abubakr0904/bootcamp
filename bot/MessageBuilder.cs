@@ -12,23 +12,23 @@ namespace bot
                             {
                                 new List<KeyboardButton>()
                                 {
-                                    new KeyboardButton(){ Text = "Uz" }, 
-                                    new KeyboardButton(){ Text = "En", },
-                                    new KeyboardButton(){ Text = "Ru", },
+                                    new KeyboardButton(){ Text = "🇺🇿 Uz" }, 
+                                    new KeyboardButton(){ Text = "🇬🇧 En", },
+                                    new KeyboardButton(){ Text = "🇷🇺 Ru", },
                                 }
                             },
                 ResizeKeyboard = true
             };
-        public static ReplyKeyboardMarkup ChooseNextLanguage()
+        public static ReplyKeyboardMarkup ChoosenextLanguage()
             => new ReplyKeyboardMarkup
             {
                 Keyboard = new List<List<KeyboardButton>>()
                             {
                                 new List<KeyboardButton>()
                                 {
-                                    new KeyboardButton(){ Text = "O'zbekcha" }, 
-                                    new KeyboardButton(){ Text = "Русский", },
-                                    new KeyboardButton(){ Text = "English", },
+                                    new KeyboardButton(){ Text = "🇺🇿 O'zbekcha" }, 
+                                    new KeyboardButton(){ Text = "🇷🇺 Русский", },
+                                    new KeyboardButton(){ Text = "🇬🇧 English", },
                                 }
                             },
                 ResizeKeyboard = true
@@ -36,17 +36,17 @@ namespace bot
         public static ReplyKeyboardMarkup Menu(string language)
         {
             var menuOption = new List<string>();
-            if(language == "Uz")
+            if(language == "🇺🇿 Uz")
             {
                 menuOption.Add("Bugungi namoz vaqtlari");
                 menuOption.Add("Sozlamalar");
             }
-            else if(language == "En")
+            else if(language == "🇬🇧 En")
             {
                 menuOption.Add("Today's prayer times");
                 menuOption.Add("Settings");
             }
-            else if(language == "Ru")
+            else if(language == "🇷🇺 Ru")
             {
                 menuOption.Add("Сегодняшнее время молитвы");
                 menuOption.Add("Настройки");
@@ -68,17 +68,17 @@ namespace bot
         public static ReplyKeyboardMarkup LocationRequestButton(string language)
         {
             var menuOption = new List<string>();
-            if(language == "Uz")
+            if(language == "🇺🇿 Uz")
             {
                 menuOption.Add("Ulashish");
                 menuOption.Add("Rad etish");
             }
-            else if(language == "En")
+            else if(language == "🇬🇧 En")
             {
                 menuOption.Add("Share");
                 menuOption.Add("Don't share");
             }
-            else if(language == "Ru")
+            else if(language == "🇷🇺 Ru")
             {
                 menuOption.Add("Поделиться");
                 menuOption.Add("Не поделиться");
@@ -100,17 +100,17 @@ namespace bot
         public static ReplyKeyboardMarkup ResetLocationButton(string language)
         {
             var menuOption = new List<string>();
-            if(language == "Uz")
+            if(language == "🇺🇿 Uz")
             {
                 menuOption.Add("Ulashish");
                 menuOption.Add("Menyuga qaytish");
             }
-            else if(language == "En")
+            else if(language == "🇬🇧 En")
             {
                 menuOption.Add("Share");
                 menuOption.Add("Back to menu");
             }
-            else if(language == "Ru")
+            else if(language == "🇷🇺 Ru")
             {
                 menuOption.Add("Поделиться");
                 menuOption.Add("Вернутся к меню");
@@ -132,21 +132,21 @@ namespace bot
         public static ReplyKeyboardMarkup Settings(string language)
         {
             var menuOption = new List<string>();
-            if(language == "Uz")
+            if(language == "🇺🇿 Uz")
             {
                 menuOption.Add("Tilni o'zgartirish");
                 menuOption.Add("Joylashuvni o'zgartirish");
                 menuOption.Add("Eslatmani yoqish/o'chirish");
                 menuOption.Add("Menyuga qaytish");
             }
-            else if(language == "En")
+            else if(language == "🇬🇧 En")
             {
                 menuOption.Add("Change language");
                 menuOption.Add("Change Location");
                 menuOption.Add("Notification On/Off");
                 menuOption.Add("Back to menu");   
             }
-            else if(language == "Ru")
+            else if(language == "🇷🇺 Ru")
             {
                 menuOption.Add("Изменить язык");
                 menuOption.Add("Изменить геолокация");
