@@ -19,7 +19,7 @@ namespace bot.Extensions
                 Sunset = dto.Data.Timings.Sunset,
                 Source = "aladhan.com",
                 CalculationMethod = dto.Data.Meta.Method.Name,
-                Timezone = dto.Data.Meta.Timezone
+                Timezone = dto.Data.Meta.Timezone,
             };
         }
 
@@ -38,23 +38,23 @@ namespace bot.Extensions
 *Method*: {json.CalculationMethod}";
             if(language == "Ru")
                 return $@"*Время молитвы*: {DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}
-*Фаджр*:               {json.Fajr}
-*Восход*:        {json.Sunrise}
-*Зухр*:           {json.Dhuhr}
+*Фаджр*:          {json.Fajr}
+*Восход*:          {json.Sunrise}
+*Зухр*:               {json.Dhuhr}
 *Аср*:                {json.Asr}
-*Магриб*:       {json.Maghrib}
-*Иша*:              {json.Isha}
+*Магриб*:         {json.Maghrib}
+*Иша*:               {json.Isha}
 
 *Источник*: {json.Source}
 *Метод*: Духовное управление мусульман России";
-            if(language == "Ru")
+            if(language == "Uz")
                 return $@"*Namoz vaqtlari*: {DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}
 *Tong*:               {json.Fajr}
-*Quyosh*:        {json.Sunrise}
+*Quyosh*:          {json.Sunrise}
 *Peshin*:           {json.Dhuhr}
-*Asr*:                {json.Asr}
-*Shom*:       {json.Maghrib}
-*Xufton*:              {json.Isha}
+*Asr*:                 {json.Asr}
+*Shom*:             {json.Maghrib}
+*Xufton*:            {json.Isha}
 
 *Manba*: {json.Source}
 *Usul*: Rossiya musulmonlar diniy boshqarmasi";

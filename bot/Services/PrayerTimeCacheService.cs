@@ -28,7 +28,7 @@ namespace bot.Services
                     var zone = result.prayerTime.Timezone;
                     var zoneId = TimeZoneInfo.FindSystemTimeZoneById(zone);
                     var expirationTime = TimeZoneInfo.ConvertTimeToUtc(DateTime.Parse("23:59"), zoneId);
-                    entry.AbsoluteExpiration = expirationTime;
+                    entry.AbsoluteExpiration = DateTime.Parse("23:59");
                     
                     return result;
                 }

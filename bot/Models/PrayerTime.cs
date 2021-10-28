@@ -12,8 +12,7 @@ namespace bot.Models
         public string Midnight { get; set; }
         public string Source { get; set; }
         public string CalculationMethod { get; set; }
-        public string Timezone { get; set; }
-        
+        public string Timezone { get; set; }        
         
     }
 }

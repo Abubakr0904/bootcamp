@@ -2,7 +2,7 @@
 
 namespace bot.Migrations
 {
-    public partial class Initial_Create : Migration
+    public partial class Initialcreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -18,7 +18,7 @@ namespace bot.Migrations
                     Latitude = table.Column<double>(type: "REAL", nullable: false),
                     Address = table.Column<string>(type: "TEXT", nullable: true),
                     NotificationSetting = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DailyPrayerTime = table.Column<string>(type: "TEXT", nullable: true)
+                    Language = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

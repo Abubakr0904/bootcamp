@@ -8,8 +8,8 @@ using bot.Entity;
 namespace bot.Migrations
 {
     [DbContext(typeof(BotDbContext))]
-    [Migration("20211027081911_Initial_Create")]
-    partial class Initial_Create
+    [Migration("20211028115035_Initial create")]
+    partial class Initialcreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,10 +26,10 @@ namespace bot.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("DailyPrayerTime")
+                    b.Property<string>("Fullname")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Fullname")
+                    b.Property<string>("Language")
                         .HasColumnType("TEXT");
 
                     b.Property<double>("Latitude")

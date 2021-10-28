@@ -13,14 +13,14 @@ namespace bot.Entity
         public double Latitude { get; set; }
         public string Address { get; set; }
         public bool NotificationSetting { get; set; } = true;
-        public string Language { get; set; }
+        public string Language { get; set; } = "";
         
         
 
         [Obsolete("Used only for Entity binding.")]
         public BotUser(){ }
 
-        public BotUser(long chatId, string username, string fullname, double longitude, double latitude, string address, string language)
+        public BotUser(long chatId, string username, string fullname, double longitude, double latitude, string address, string language, bool notification)
         {
             ChatId = chatId;
             Username = username;
@@ -29,6 +29,7 @@ namespace bot.Entity
             Latitude = latitude;
             Address = address;
             Language = language;
+            NotificationSetting = notification;
         }
     }
 }

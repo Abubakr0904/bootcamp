@@ -67,63 +67,66 @@ namespace bot
                         
         private async Task BotOnMessageEdited(ITelegramBotClient client, Message editedMessage)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         private async Task UnknownUpdateHandlerAsync(ITelegramBotClient client, Update update)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         private async Task BotOnChosenInlineResultReceived(ITelegramBotClient client, ChosenInlineResult chosenInlineResult)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         private async Task BotOnInlineQueryReceived(ITelegramBotClient client, InlineQuery inlineQuery)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         private async Task BotOnCallbackQueryReceived(ITelegramBotClient client, CallbackQuery callbackQuery)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         private async Task BotOnMessageReceived(ITelegramBotClient client, Message message)
         {
-            BotUser user;
-            string language;
+            var language = "";
             if(await _storage.ExistsAsync(message.Chat.Id))
             {
-                user = _storage.GetUserAsync(message.Chat.Id).Result;
-                language = _storage.GetUserAsync(message.Chat.Id).Result.Language;
+                var user12313 = await _storage.GetUserAsync(message.Chat.Id);
+                language = user12313.Language;
+
             }
             if(message.Location != null && message.Type == MessageType.Location)
             {
-                    user = new BotUser(
+                var user = new BotUser(
                     chatId: message.Chat.Id,
                     username: message.From.Username,
                     fullname: $"{message.From.FirstName} {message.From.LastName}",
                     longitude: message.Location.Longitude,
                     latitude: message.Location.Latitude,
-                    address: string.Empty);
-                    language: _storage.GetUserAsync(message.Chat.Id).Result.Language;
-                    );
-                var result = await _storage.UpdateUserAsync(user);
+                    address: string.Empty,
+                    language: _storage.GetUserAsync(message.Chat.Id).Result.Language,
+                    notification: _storage.GetUserAsync(message.Chat.Id).Result.NotificationSetting);
                 
+                var result = await _storage.UpdateUserAsync(user);
                 if(result.IsSuccess)
                 {
-                    _logger.LogInformation($"User's location has been updated successfully : {message.Chat.Id}");
+                    _logger.LogInformation($"User's location has been updated successfully : {message.Chat.Id}:{message.Location.Latitude}:{message.Location.Longitude}");
+                    _logger.LogInformation($"User's location in database : {_storage.GetUserAsync(message.Chat.Id).Result.Latitude}:{_storage.GetUserAsync(message.Chat.Id).Result.Longitude}:{message.Chat.Id}");
                 }
                 else
                 {
-                    _logger.LogCritical($"Error occured with location update : {message.Chat.Id}");
+                    _logger.LogInformation($"User's location in database : {_storage.GetUserAsync(message.Chat.Id).Result.Latitude}:{_storage.GetUserAsync(message.Chat.Id).Result.Longitude}:{message.Chat.Id}");
+                    _logger.LogWarning("Location didn't change");
+                    _logger.LogWarning(result.exception.ToString());
                 }
                 await client.SendTextMessageAsync(
                     chatId: message.Chat.Id,
                     parseMode: ParseMode.Markdown,
-                    text: user.Language switch
+                    text: _storage.GetUserAsync(message.Chat.Id).Result.Language switch
                     {
                         "En" => "Your location has been updated successfully",
                         "Ru" => "Ваше местоположение было успешно обновлено",
@@ -142,18 +145,21 @@ namespace bot
             {
                 switch(message.Text)
                 {
-                    case "/start": 
+                    case "/start":
+                    {
                         if(!await _storage.ExistsAsync(message.Chat.Id))
                         {
-                                var user = new BotUser(
+                            var userstart = new BotUser(
                                 chatId: message.Chat.Id,
                                 username: message.From.Username,
                                 fullname: $"{message.From.FirstName} {message.From.LastName}",
-                                longitude: 0,
-                                latitude: 0,
-                                address: string.Empty);
+                                longitude: 400,
+                                latitude: 400,
+                                address: string.Empty,
+                                language: string.Empty,
+                                notification: true);
 
-                            var result = await _storage.InsertUserAsync(user);
+                            var result = await _storage.InsertUserAsync(userstart);
 
                             if(result.IsSuccess)
                             {
@@ -173,57 +179,95 @@ namespace bot
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
+                    } 
                     case "En":
-                        user =_storage.GetUserAsync(message.Chat.Id).Result;
-                        user.Language = "En";
-                        await _storage.UpdateUserAsync(user);
-                        await client.SendTextMessageAsync(
-                            chatId: message.Chat.Id,
-                            parseMode: ParseMode.Markdown,
-                            text: "In order I provide the proper prayer times for you, you should share your current location",
-                            replyMarkup: MessageBuilder.LocationRequestButton("Share", "Don't share"));
-                        await client.DeleteMessageAsync(
-                            chatId: message.Chat.Id,
-                            messageId: message.MessageId);
-                        break;
                     case "Ru":
-                        user.Language = "Ru";
-                        await _storage.UpdateUserAsync(user);
-                        await client.SendTextMessageAsync(
-                            chatId: message.Chat.Id,
-                            parseMode: ParseMode.Markdown,
-                            text: "Чтобы я указал вам правильное время молитвы, вы должны сообщить свое текущее местоположение",
-                            replyMarkup: MessageBuilder.LocationRequestButton(language));
-                        await client.DeleteMessageAsync(
-                            chatId: message.Chat.Id,
-                            messageId: message.MessageId);
-                        break;
                     case "Uz":
-                        user =_storage.GetUserAsync(message.Chat.Id).Result;
-                        user.Language = "Uz";
-                        await _storage.UpdateUserAsync(user);
+                    {
+                        var initUser = await _storage.GetUserAsync(message.Chat.Id);
+                        initUser.Language = message.Text;
+                        await _storage.UpdateUserAsync(initUser);
+
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text: "Namoz vaqtlari to'g'ri ko'rsatishi uchun joriy joylashuvingizni yuboring",
-                            replyMarkup: MessageBuilder.LocationRequestButton("Uz"));
+                            text: initUser.Language switch
+                                    {
+                                        "En" => "In order I provide the proper prayer times for you, you should share your current location",
+                                        "Ru" => "Для представления точного времени молитвы, введите текущее местоположение",
+                                        "Uz" => "Namoz vaqtlari to'g'ri ko'rsatishi uchun joriy joylashuvingizni yuboring",
+                                        _    => "Problem with language. Try again"
+                                    },
+                            replyMarkup: MessageBuilder.LocationRequestButton(initUser.Language)
+                            );
+                        break;
+                    }
+                    case "English":
+                    case "O'zbekcha":
+                    case "Русский":
+                    {
+                        var langUser =  _storage.GetUserAsync(message.Chat.Id).Result;
+                        if(message.Text == "English")
+                        {
+                            langUser.Language = "En";
+                        }
+                        else if(message.Text == "O'zbekcha")
+                        {
+                            langUser.Language = "Uz";
+                        }
+                        else if(message.Text == "Русский")
+                        {
+                            langUser.Language = "Ru";
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Error in choosing language");
+                        }
+                        await _storage.UpdateUserAsync(langUser);
+                        
+                        await client.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            parseMode: ParseMode.Markdown,
+                            text: langUser.Language switch
+                                {
+                                    "En" => "Language updated successfully",
+                                    "Ru" => "Язык успешно обновлен",
+                                    "Uz" => "Til muvaffaqiyatli yangilandi",
+                                    _    => "Problem with language. Try again"
+                                },
+                            replyMarkup: MessageBuilder.Menu(langUser.Language)
+                            );
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
-
-                        
+                    }
                     case "Don't share":
+                    case "Не поделиться":
+                    case "Rad etish":
+                    {
+                        var shareUser = await _storage.GetUserAsync(message.Chat.Id);
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text: "When you need the prayer times, you can share your location",
+                            text: shareUser.Language switch
+                            {
+                                "En" => "When you need the prayer times, you can share your location",
+                                "Uz" => "Namoz vaqtlarini bilish uchun joylashuvingizni kiritishingiz kerak",
+                                "Ru" => "Для представлнния времени молитвы, необходимо ввести местоположение",
+                                _    => "Problem with language. Try again"
+                            },
                             replyMarkup: MessageBuilder.LocationRequestButton(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
-                    case "Today's Prayer Times":
+                    }
+                    
+                    case "Today's prayer times":
+                    case "Bugungi namoz vaqtlari":
+                    case "Сегодняшнее время молитвы":
+                    {
                         var prayerTime = _cache.GetOrUpdatePrayerTimeAsync(
                             message.Chat.Id,
                             _storage.GetUserAsync(message.Chat.Id).Result.Latitude,
@@ -235,62 +279,167 @@ namespace bot
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
                             text: json.TimeToString(language),
-                            replyMarkup: MessageBuilder.Menu(language switch
-                            {
-                                
-                            }));
+                            replyMarkup: MessageBuilder.Menu(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
+                    }
+                    
                     case "Settings":
+                    case "Настройки":
+                    case "Sozlamalar":
+                    {
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text: "Settings",
-                            replyMarkup: MessageBuilder.Settings());
+                            text: language switch
+                            {
+                                "En" => "Settings",
+                                "Ru" => "Настройки",
+                                "Uz" => "Sozlamalar",
+                                _    => "*Use only buttons*"
+                            },
+                            replyMarkup: MessageBuilder.Settings(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
-                    case "Reset Location":
+                    }
+                    case "Change Location":
+                    case "Изменить геолокация":
+                    case "Joylashuvni o'zgartirish":
+                    {
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text: "Settings",
-                            replyMarkup: MessageBuilder.LocationRequestButton(language));
+                            text: language switch
+                            {
+                                "En" => "Reset Location",
+                                "Ru" => "Изменить геолокация",
+                                "Uz" => "Joylashuvni o'zgartirish",
+                                _    => "*En/Ru/Uz*"
+                            },
+                            replyMarkup: MessageBuilder.ResetLocationButton(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
+                    }
+                    
                     case "Notification on/off":
-                        
+                    case "Включить/Отключить уведомления":
+                    case "Eslatmani yoqish/o'chirish":
+                    {
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text:  _storage.UpdateNotificationSettingAsync(
-                            _storage.GetUserAsync(message.Chat.Id).Result
-                            ).Result.status
-                                ? "Notification is now on" 
-                                : "Notification is now off",
+                            text:   _notificationMessageMaker(_storage.UpdateNotificationSettingAsync(
+                                    _storage.GetUserAsync(message.Chat.Id).Result
+                                    ).Result.status,
+                                    language
+                                    ),
                             replyMarkup: MessageBuilder.Menu(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
+                    }
                     case "Back to menu":
+                    case "Menyuga qaytish":
+                    case "Вернутся к меню":
+                    {
                         await client.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             parseMode: ParseMode.Markdown,
-                            text: "Menu",
+                            text: language switch
+                            {
+                                "En" => "Menu",
+                                "Ru" => "Меню",
+                                "Uz" => "Menyu",
+                                _    => "*Use only buttons*"
+                            },
                             replyMarkup: MessageBuilder.Menu(language));
                         await client.DeleteMessageAsync(
                             chatId: message.Chat.Id,
                             messageId: message.MessageId);
                         break;
-                    default: System.Console.WriteLine("Invalid command");break;
+                    }
+                    case "Tilni o'zgartirish":
+                    case "Change language":
+                    case "Изменить язык":
+                    {
+                        await client.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            parseMode: ParseMode.Markdown,
+                            text: language switch
+                            {
+                                "En" => "Choose language",
+                                "Ru" => "Выберите язык",
+                                "Uz" => "Tilni tanlang",
+                                _    => "*Use only buttons*"
+                            },
+                            replyMarkup: MessageBuilder.ChooseNextLanguage());
+                        await client.DeleteMessageAsync(
+                            chatId: message.Chat.Id,
+                            messageId: message.MessageId);
+                        break;
+                    }
+                    default: 
+                        await client.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            parseMode: ParseMode.Markdown,
+                            text: language switch
+                            {
+                                "En" => "Invalid command!\nPlease, restart the bot",
+                                "Ru" => "Неравильная команда!\nПожалуйста, перезапустите бота",
+                                "Uz" => "Noto'g'ri buyruq!\nIltimos, botni qaytadan yurgizing",
+                                _    => "*Error in default*"
+                            });
+                        await client.DeleteMessageAsync(
+                            chatId: message.Chat.Id,
+                            messageId: message.MessageId);
+                        System.Console.WriteLine("Invalid command");break;
                 }
             }
+        }
+
+        private string _notificationMessageMaker(bool status, string language)
+        {
+            if(language == "Uz")
+            {
+                if(status)
+                {
+                    return "Eslatma yoqildi";
+                }
+                else
+                {
+                    return "Eslatma o'chirildi";
+                }
+            }
+            else if(language == "Ru")
+            {
+                if(status)
+                {
+                    return "Уведомление включено";
+                }
+                else
+                {
+                    return "Уведомление выключено";
+                }
+            }
+            else if(language == "Ru")
+            {
+                if(status)
+                {
+                    return "Уведомление включено";
+                }
+                else
+                {
+                    return "Уведомление выключено";
+                }
+            }
+            return "Error, please use only buttons";
         }
     }
 }

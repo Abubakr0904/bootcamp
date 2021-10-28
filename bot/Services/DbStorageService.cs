@@ -29,9 +29,13 @@ namespace bot.Services
         {
             try
             {
-                await _context.Users.AddAsync(user);
-                await _context.SaveChangesAsync();
-                return(true, null);
+                if(!await ExistsAsync(user.ChatId))
+                {
+                    await _context.Users.AddAsync(user);
+                    await _context.SaveChangesAsync();
+                    return(true, null);
+                }
+                return (false, null);
             }
             catch (Exception e)
             {
@@ -55,7 +59,6 @@ namespace bot.Services
 
         public async Task<(bool IsSuccess, Exception exception, bool status)> UpdateNotificationSettingAsync(BotUser user)
         {
-            bool status;
             if(user.NotificationSetting) user.NotificationSetting = false;
             else user.NotificationSetting = true;
 
@@ -69,9 +72,12 @@ namespace bot.Services
         {
             try
             {
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
-                return(true, null);
+                    var savedUser = await GetUserAsync(user.ChatId);
+                    _context.Users.Remove(savedUser);
+                    await _context.SaveChangesAsync();
+                    await _context.Users.AddAsync(user);
+                    await _context.SaveChangesAsync();
+                    return(true, null);
             }
             catch (Exception e)
             {

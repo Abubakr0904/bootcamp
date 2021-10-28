@@ -24,10 +24,10 @@ namespace bot.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("DailyPrayerTime")
+                    b.Property<string>("Fullname")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Fullname")
+                    b.Property<string>("Language")
                         .HasColumnType("TEXT");
 
                     b.Property<double>("Latitude")
