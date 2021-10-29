@@ -8,8 +8,8 @@ using bot.Entity;
 namespace bot.Migrations
 {
     [DbContext(typeof(BotDbContext))]
-    [Migration("20211028115035_Initial create")]
-    partial class Initialcreate
+    [Migration("20211029095042_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

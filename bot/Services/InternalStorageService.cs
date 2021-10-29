@@ -93,5 +93,10 @@ namespace bot.Services
 
             return (false, new Exception("User does not exist!"), status);
         }
+
+        Task<(bool IsSuccess, List<BotUser>, Exception exception)> IStorageService.GetAllUsersAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -21,14 +21,13 @@ namespace bot.Services
         public async Task<(bool IsSuccess, PrayerTime prayerTime, Exception exception)> GetOrUpdatePrayerTimeAsync(long chatId, double latitude, double longitude)
         {
             var key = String.Format($"{chatId}:{latitude}:{longitude}");
-
             return await _memCache.GetOrCreateAsync(key, async entry => 
                 {
                     var result = await _client.GetPrayerTimeAsync(latitude, longitude);
                     var zone = result.prayerTime.Timezone;
                     var zoneId = TimeZoneInfo.FindSystemTimeZoneById(zone);
                     var expirationTime = TimeZoneInfo.ConvertTimeToUtc(DateTime.Parse("23:59"), zoneId);
-                    entry.AbsoluteExpiration = DateTime.Parse("23:59");
+                    entry.AbsoluteExpiration = expirationTime;
                     
                     return result;
                 }

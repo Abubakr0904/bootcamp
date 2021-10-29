@@ -2,7 +2,7 @@
 
 namespace bot.Migrations
 {
-    public partial class Initialcreate : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

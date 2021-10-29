@@ -1,7 +1,10 @@
+using System.Threading;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using bot.Entity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace bot.Services
 {
@@ -82,6 +85,22 @@ namespace bot.Services
             catch (Exception e)
             {
                 return (false, e);
+            }
+        }
+        async Task<(bool IsSuccess, List<BotUser>, Exception exception)> IStorageService.GetAllUsersAsync()
+        {
+            try
+            {
+                List<BotUser> userslist = new List<BotUser>();
+                foreach (var user in _context.Users)
+                {
+                    userslist.Add(user);
+                }
+                return (true, userslist, null);
+            }
+            catch (System.Exception e)
+            {
+                 return (false, null, e);
             }
         }
     }

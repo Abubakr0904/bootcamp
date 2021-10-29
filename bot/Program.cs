@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using bot.Services;
@@ -38,7 +39,10 @@ namespace bot
                 options.UseSqlite(Configuration.GetConnectionString("BotConnection")), ServiceLifetime.Singleton);
             services.AddMemoryCache();
             services.AddSingleton<TelegramBotClient>(b => new TelegramBotClient(Configuration.GetSection("Bot:Token").Value));
+            
             services.AddHostedService<Bot>();
+            services.AddHostedService<NotificationBackgroundService>();
+            
             // services.AddTransient<IStorageService, InternalStorageService>();
             services.AddTransient<IStorageService, DbStorageService>();
             services.AddTransient<Handlers>();
