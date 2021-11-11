@@ -35,7 +35,7 @@ namespace task.Entities
 
 
         [Obsolete("Used only for entity binding")]
-        public Task() { }
+        public Task(Guid id) { }
 
         public Task(string title, string description="", string tags="", DateTimeOffset onADay=default(DateTimeOffset), DateTimeOffset atATime=default(DateTimeOffset), ETaskStatus status=ETaskStatus.None, ETaskPriority priority=ETaskPriority.None, ETaskRepeat repeat=ETaskRepeat.None, string location="", string url="")
         {
@@ -50,7 +50,6 @@ namespace task.Entities
             this.Repeat = repeat;
             this.Location = location;
             this.Url = url;
-
         }
     }
 }
